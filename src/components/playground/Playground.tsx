@@ -33,6 +33,7 @@ import {
 } from "livekit-client";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import SystemMessage from "./SystemMessage";
 
 export interface PlaygroundMeta {
   name: string;
@@ -250,6 +251,15 @@ export default function Playground({
               <NameValueRow
                 name="Participant"
                 value={localParticipant.identity}
+              />
+              <SystemMessage
+                accentColor={config.settings.theme_color}
+                identity={localParticipant.identity}
+                connectionState={roomState}
+                onUpdate={() => {
+                  console.log("updated");
+                  onConnect(false);
+                }}
               />
             </div>
           )}

@@ -1,0 +1,17 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model participants {
+  id             String  @id @db.Uuid
+  name           String?
+  conversation   Json?
+  system_message String  @default("You are a voice assistant. Your interface with users will be voice.")
+}

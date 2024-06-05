@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import { useCloud } from "@/cloud/useCloud";
 import React, { createContext, useState } from "react";
 import { useCallback } from "react";
 import { useConfig } from "./useConfig";
 
-export type ConnectionMode = "cloud" | "manual" | "env"
+export type ConnectionMode = "cloud" | "manual" | "env";
 
 type TokenGeneratorData = {
   shouldConnect: boolean;
@@ -16,7 +16,9 @@ type TokenGeneratorData = {
   connect: (mode: ConnectionMode) => Promise<void>;
 };
 
-const ConnectionContext = createContext<TokenGeneratorData | undefined>(undefined);
+const ConnectionContext = createContext<TokenGeneratorData | undefined>(
+  undefined
+);
 
 export const ConnectionProvider = ({
   children,
@@ -32,30 +34,40 @@ export const ConnectionProvider = ({
     shouldConnect: boolean;
   }>({ wsUrl: "", token: "", shouldConnect: false, mode: "manual" });
 
-  const connect = useCallback(async (mode: ConnectionMode) => {
-    let token = "";
-    let url = "";
-    if (mode === "cloud") {
-      token = await generateToken();
-      url = cloudWSUrl;
-    } else if (mode === "env") {
-      if(!process.env.NEXT_PUBLIC_LIVEKIT_URL) {
-        throw new Error("NEXT_PUBLIC_LIVEKIT_URL is not set");
+  const connect = useCallback(
+    async (mode: ConnectionMode) => {
+      let token = "";
+      let url = "";
+      if (mode === "cloud") {
+        token = await generateToken();
+        url = cloudWSUrl;
+      } else if (mode === "env") {
+        if (!process.env.NEXT_PUBLIC_LIVEKIT_URL) {
+          throw new Error("NEXT_PUBLIC_LIVEKIT_URL is not set");
+        }
+        url = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+        const { accessToken } = await fetch("/api/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ identity: config.settings.identity }),
+        }).then((res) => res.json());
+        token = accessToken;
+      } else {
+        token = config.settings.token;
+        url = config.settings.ws_url;
       }
-      url = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-      const {accessToken} = await fetch("/api/token").then((res) => res.json());
-      token = accessToken;
-    } else {
-      token = config.settings.token;
-      url = config.settings.ws_url;
-    }
-    setConnectionDetails({ wsUrl: url, token, shouldConnect: true, mode });
-  }, [
-    cloudWSUrl,
-    config.settings.token,
-    config.settings.ws_url,
-    generateToken,
-  ]);
+      setConnectionDetails({ wsUrl: url, token, shouldConnect: true, mode });
+    },
+    [
+      cloudWSUrl,
+      config.settings.token,
+      config.settings.ws_url,
+      config.settings.identity,
+      generateToken,
+    ]
+  );
 
   const disconnect = useCallback(async () => {
     setConnectionDetails((prev) => ({ ...prev, shouldConnect: false }));
@@ -83,4 +95,4 @@ export const useConnection = () => {
     throw new Error("useConnection must be used within a ConnectionProvider");
   }
   return context;
-}
+};

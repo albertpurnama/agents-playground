@@ -257,7 +257,6 @@ export default function Playground({
                 identity={localParticipant.identity}
                 connectionState={roomState}
                 onUpdate={() => {
-                  console.log("updated");
                   onConnect(false);
                 }}
               />

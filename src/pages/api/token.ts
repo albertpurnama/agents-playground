@@ -19,14 +19,17 @@ export default async function handleToken(
   res: NextApiResponse
 ) {
   try {
+    const { identity } = req.body;
+
     if (!apiKey || !apiSecret) {
       res.statusMessage = "Environment variables aren't set up correctly";
       res.status(500).end();
       return;
     }
 
-    const roomName = `room-${generateRandomAlphanumeric(4)}-${generateRandomAlphanumeric(4)}`;
-    const identity = `identity-${generateRandomAlphanumeric(4)}`
+    const roomName = `room-${generateRandomAlphanumeric(
+      4
+    )}-${generateRandomAlphanumeric(4)}`;
 
     const grant: VideoGrant = {
       room: roomName,
@@ -36,7 +39,10 @@ export default async function handleToken(
       canSubscribe: true,
     };
 
-    const token = await createToken({ identity }, grant);
+    const token = await createToken(
+      { identity: identity || `identity-${generateRandomAlphanumeric(4)}` },
+      grant
+    );
     const result: TokenResult = {
       identity,
       accessToken: token,

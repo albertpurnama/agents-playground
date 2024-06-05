@@ -34,6 +34,7 @@ export type UserSettings = {
   };
   ws_url: string;
   token: string;
+  identity: string;
 };
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
@@ -55,6 +56,7 @@ const defaultConfig: AppConfig = {
     },
     ws_url: "",
     token: "",
+    identity: "2c894bdb-a397-4492-8663-30c16ad71879",
   },
   show_qr: false,
 };
@@ -122,6 +124,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
       },
       ws_url: "",
       token: "",
+      identity: params.get("identity") || "",
     } as UserSettings;
   }, [appConfig]);
 
@@ -146,6 +149,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         audio: boolToString(us.outputs.audio),
         chat: boolToString(us.chat),
         theme_color: us.theme_color || "cyan",
+        identity: us.identity,
       });
       // Note: We don't set ws_url and token to the URL on purpose
       router.replace("/#" + obj.toString());

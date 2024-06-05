@@ -30,39 +30,81 @@ const TokenConnect = ({
   onConnectClicked,
 }: PlaygroundConnectProps) => {
   const { setUserSettings, config } = useConfig();
-  const [url, setUrl] = useState(config.settings.ws_url);
+  const [url, setUrl] = useState("wss://notatoy-fab8ohde.livekit.cloud");
   const [token, setToken] = useState(config.settings.token);
+  const [identity, setIdentity] = useState(
+    "2c894bdb-a397-4492-8663-30c16ad71879"
+  );
 
   return (
     <div className="flex left-0 top-0 w-full h-full bg-black/80 items-center justify-center text-center">
       <div className="flex flex-col gap-4 p-8 bg-gray-950 w-full text-white border-t border-gray-900">
-        <div className="flex flex-col gap-2">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2"
-            placeholder="wss://url"
-          ></input>
-          <textarea
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2"
-            placeholder="room token..."
-          ></textarea>
-        </div>
-        <Button
-          accentColor={accentColor}
-          className="w-full"
-          onClick={() => {
-            const newSettings = { ...config.settings };
-            newSettings.ws_url = url;
-            newSettings.token = token;
-            setUserSettings(newSettings);
-            onConnectClicked("manual");
-          }}
-        >
-          Connect
-        </Button>
+        {!token ? (
+          <>
+            <div className="flex flex-col gap-2">
+              <input
+                value={identity}
+                onChange={(e) => setIdentity(e.target.value)}
+                className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2 disabled:cursor-not-allowed"
+                placeholder="2c894bdb-a397-4492-8663-30c16ad71879"
+              ></input>
+            </div>
+            <Button
+              accentColor={accentColor}
+              className="w-full"
+              onClick={() => {
+                fetch("/api/custom_token", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    identity,
+                  }),
+                })
+                  .then((resp) => resp.json())
+                  .then((data) => {
+                    setToken(data.accessToken);
+                  });
+              }}
+            >
+              Get Token
+            </Button>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col gap-2">
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                disabled
+                className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2 disabled:cursor-not-allowed"
+                placeholder="wss://url"
+              ></input>
+              <textarea
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                disabled
+                className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2 disabled:cursor-not-allowed"
+                placeholder="room token..."
+              ></textarea>
+            </div>
+            <Button
+              accentColor={accentColor}
+              className="w-full"
+              disabled={!token}
+              onClick={() => {
+                const newSettings = { ...config.settings };
+                newSettings.ws_url = url;
+                newSettings.token = token;
+                setUserSettings(newSettings);
+                onConnectClicked("manual");
+              }}
+            >
+              Connect
+            </Button>
+          </>
+        )}
         <a
           href="https://kitt.livekit.io/"
           className={`text-xs text-${accentColor}-500 hover:underline`}

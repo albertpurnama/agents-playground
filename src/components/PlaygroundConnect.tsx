@@ -42,7 +42,15 @@ const TokenConnect = ({
         {!token ? (
           <>
             <div className="flex flex-col gap-2">
+              <label
+                htmlFor="identity-input"
+                className="text-sm text-left text-gray-500 font-semibold"
+              >
+                This is linked to your notatoy account
+              </label>
               <input
+                id="identity-input"
+                name="identity"
                 value={identity}
                 onChange={(e) => setIdentity(e.target.value)}
                 className="text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2 disabled:cursor-not-allowed"

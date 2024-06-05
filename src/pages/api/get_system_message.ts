@@ -8,7 +8,6 @@ export default async function handleToken(
   const parsedBody = req.body;
 
   try {
-    console.log(parsedBody);
     const participant = await prisma.participants.findUniqueOrThrow({
       select: {
         system_message: true,
